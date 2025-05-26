@@ -118,16 +118,51 @@
                 font-size: 13px;
             }
         }
+
+        /* Dark mode toggle button styles */
+        #toggle-dark-mode {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            box-shadow: none;
+            padding: 8px;
+            min-width: unset;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        #toggle-dark-mode svg {
+            width: 24px;
+            height: 24px;
+            fill: #333;
+            transition: fill 0.3s;
+        }
+        body.dark-mode #toggle-dark-mode svg {
+            fill: #ffd700;
+        }
+        @media (max-width: 768px) {
+            #toggle-dark-mode {
+                top: 10px;
+                right: 10px;
+            }
+        }
     </style>
 </head>
 <body>
+    <button id="toggle-dark-mode" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+        <span id="dark-mode-icon"></span>
+    </button>
     <h1>Markdown to PDF Converter</h1>
     
     <textarea id="editor" placeholder="Enter your markdown here..."></textarea>
     <div class="button-container">
         <button onclick="convertToPDF()">Convert to PDF</button>
         <button onclick="convertToWord()">Convert to Word Doc</button>
-        <button id="toggle-dark-mode" onclick="toggleDarkMode()">Toggle Dark Mode</button>
         <button onclick="updatePreview()">Preview</button>
     </div>
     <div id="preview"></div>
@@ -195,12 +230,24 @@
             } else {
                 localStorage.setItem('theme', 'light');
             }
+            updateDarkModeIcon();
         }
-        // On load, set theme from localStorage
+        function updateDarkModeIcon() {
+            const iconSpan = document.getElementById('dark-mode-icon');
+            if(document.body.classList.contains('dark-mode')) {
+                // Moon icon
+                iconSpan.innerHTML = `<svg viewBox='0 0 24 24'><path d='M21 12.79A9 9 0 0111.21 3a1 1 0 00-1.09 1.32A7 7 0 1019.68 13.88a1 1 0 001.32-1.09z'></path></svg>`;
+            } else {
+                // Sun icon
+                iconSpan.innerHTML = `<svg viewBox='0 0 24 24'><circle cx='12' cy='12' r='5'/><g><line x1='12' y1='1' x2='12' y2='3'/><line x1='12' y1='21' x2='12' y2='23'/><line x1='4.22' y1='4.22' x2='5.64' y2='5.64'/><line x1='18.36' y1='18.36' x2='19.78' y2='19.78'/><line x1='1' y1='12' x2='3' y2='12'/><line x1='21' y1='12' x2='23' y2='12'/><line x1='4.22' y1='19.78' x2='5.64' y2='18.36'/><line x1='18.36' y1='5.64' x2='19.78' y2='4.22'/></g></svg>`;
+            }
+        }
+        // On load, set theme from localStorage and update icon
         window.onload = function() {
             if(localStorage.getItem('theme') === 'dark') {
                 document.body.classList.add('dark-mode');
             }
+            updateDarkModeIcon();
         }
 
         // Update preview on input
