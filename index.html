@@ -4,168 +4,132 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown Converter</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
+    />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <style>
         body {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
+            font-family: Inter, "Noto Sans", sans-serif;
         }
-        h1 {
-            font-size: 2em;
-            margin-bottom: 1em;
-        }
-        #editor, #preview {
-            width: 100%;
-            min-height: 300px;
-            margin: 10px 0;
-            padding: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        #preview {
-            overflow-y: auto;
-            background-color: #f9f9f9;
-        }
-        .button-container {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-        button {
-            padding: 12px 24px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            flex: 1;
-            min-width: 140px;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        button:active {
-            transform: scale(0.98);
-        }
-
+        
         /* Dark mode styles */
         body.dark-mode {
-            background-color: #181a1b;
-            color: #e8e6e3;
+            background-color: #181a1b !important;
+            color: #e8e6e3 !important;
         }
-        body.dark-mode #editor, body.dark-mode #preview {
-            background-color: #23272b;
-            color: #e8e6e3;
-            border-color: #444;
+        body.dark-mode textarea,
+        body.dark-mode .bg-\[\#e7edf4\] {
+            background-color: #23272b !important;
+            color: #e8e6e3 !important;
+            border-color: #444 !important;
         }
-        body.dark-mode #preview {
-            background-color: #23272b;
+        body.dark-mode .border-b-\[\#e7edf4\] {
+            border-color: #444 !important;
         }
-        body.dark-mode button {
-            background-color: #333c3f;
-            color: #e8e6e3;
+        body.dark-mode .text-\[\#0d141c\] {
+            color: #e8e6e3 !important;
         }
-        body.dark-mode button:hover {
-            background-color: #444c4f;
-        }
-        body.dark-mode h1 {
-            color: #e8e6e3;
-        }
-
-        /* Mobile Responsive Styles */
-        @media screen and (max-width: 768px) {
-            body {
-                padding: 15px;
-            }
-            h1 {
-                font-size: 1.5em;
-                text-align: center;
-            }
-            #editor, #preview {
-                min-height: 200px;
-                padding: 10px;
-                font-size: 14px;
-            }
-            .button-container {
-                flex-direction: column;
-            }
-            button {
-                width: 100%;
-                padding: 15px;
-                margin: 5px 0;
-            }
-        }
-
-        /* Small Mobile Devices */
-        @media screen and (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-            h1 {
-                font-size: 1.3em;
-            }
-            #editor, #preview {
-                min-height: 150px;
-                font-size: 13px;
-            }
-        }
-
-        /* Dark mode toggle button styles */
-        #toggle-dark-mode {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            box-shadow: none;
-            padding: 8px;
-            min-width: unset;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-        }
-        #toggle-dark-mode svg {
-            width: 24px;
-            height: 24px;
-            fill: #333;
-            transition: fill 0.3s;
-        }
-        body.dark-mode #toggle-dark-mode svg {
-            fill: #ffd700;
-        }
-        @media (max-width: 768px) {
-            #toggle-dark-mode {
-                top: 10px;
-                right: 10px;
-            }
+        body.dark-mode .placeholder\:text-\[\#49709c\]::placeholder {
+            color: #8ba3bc !important;
         }
     </style>
 </head>
-<body>
-    <button id="toggle-dark-mode" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
-        <span id="dark-mode-icon"></span>
-    </button>
-    <h1>Markdown to PDF Converter</h1>
-    
-    <textarea id="editor" placeholder="Enter your markdown here..."></textarea>
-    <div class="button-container">
-        <button onclick="convertToPDF()">Convert to PDF</button>
-        <button onclick="convertToWord()">Convert to Word Doc</button>
-        <button onclick="updatePreview()">Preview</button>
+<body class="relative flex size-full min-h-screen flex-col bg-slate-50 group/design-root overflow-x-hidden">
+    <div class="layout-container flex h-full grow flex-col">
+        <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7edf4] px-10 py-3">
+            <div class="flex items-center gap-4 text-[#0d141c]">
+                <div class="size-4">
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_6_543)">
+                            <path
+                                d="M42.1739 20.1739L27.8261 5.82609C29.1366 7.13663 28.3989 10.1876 26.2002 13.7654C24.8538 15.9564 22.9595 18.3449 20.6522 20.6522C18.3449 22.9595 15.9564 24.8538 13.7654 26.2002C10.1876 28.3989 7.13663 29.1366 5.82609 27.8261L20.1739 42.1739C21.4845 43.4845 24.5355 42.7467 28.1133 40.548C30.3042 39.2016 32.6927 37.3073 35 35C37.3073 32.6927 39.2016 30.3042 40.548 28.1133C42.7467 24.5355 43.4845 21.4845 42.1739 20.1739Z"
+                                fill="currentColor"
+                            ></path>
+                            <path
+                                fill-rule="evenodd"
+                                clip-rule="evenodd"
+                                d="M7.24189 26.4066C7.31369 26.4411 7.64204 26.5637 8.52504 26.3738C9.59462 26.1438 11.0343 25.5311 12.7183 24.4963C14.7583 23.2426 17.0256 21.4503 19.238 19.238C21.4503 17.0256 23.2426 14.7583 24.4963 12.7183C25.5311 11.0343 26.1438 9.59463 26.3738 8.52504C26.5637 7.64204 26.4411 7.31369 26.4066 7.24189C26.345 7.21246 26.143 7.14535 25.6664 7.1918C24.9745 7.25925 23.9954 7.5498 22.7699 8.14278C20.3369 9.32007 17.3369 11.4915 14.4142 14.4142C11.4915 17.3369 9.32007 20.3369 8.14278 22.7699C7.5498 23.9954 7.25925 24.9745 7.1918 25.6664C7.14534 26.143 7.21246 26.345 7.24189 26.4066ZM29.9001 10.7285C29.4519 12.0322 28.7617 13.4172 27.9042 14.8126C26.465 17.1544 24.4686 19.6641 22.0664 22.0664C19.6641 24.4686 17.1544 26.465 14.8126 27.9042C13.4172 28.7617 12.0322 29.4519 10.7285 29.9001L21.5754 40.747C21.6001 40.7606 21.8995 40.931 22.8729 40.7217C23.9424 40.4916 25.3821 39.879 27.0661 38.8441C29.1062 37.5904 31.3734 35.7982 33.5858 33.5858C35.7982 31.3734 37.5904 29.1062 38.8441 27.0661C39.879 25.3821 40.4916 23.9425 40.7216 22.8729C40.931 21.8995 40.7606 21.6001 40.747 21.5754L29.9001 10.7285ZM29.2403 4.41187L43.5881 18.7597C44.9757 20.1473 44.9743 22.1235 44.6322 23.7139C44.2714 25.3919 43.4158 27.2666 42.252 29.1604C40.8128 31.5022 38.8165 34.012 36.4142 36.4142C34.012 38.8165 31.5022 40.8128 29.1604 42.252C27.2666 43.4158 25.3919 44.2714 23.7139 44.6322C22.1235 44.9743 20.1473 44.9757 18.7597 43.5881L4.41187 29.2403C3.29027 28.1187 3.08209 26.5973 3.21067 25.2783C3.34099 23.9415 3.8369 22.4852 4.54214 21.0277C5.96129 18.0948 8.43335 14.7382 11.5858 11.5858C14.7382 8.43335 18.0948 5.9613 21.0277 4.54214C22.4852 3.8369 23.9415 3.34099 25.2783 3.21067C26.5973 3.08209 28.1187 3.29028 29.2403 4.41187Z"
+                                fill="currentColor"
+                            ></path>
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_6_543"><rect width="48" height="48" fill="white"></rect></clipPath>
+                        </defs>
+                    </svg>
+                </div>
+                <h2 class="text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em]">Markdown Converter</h2>
+            </div>
+            <button
+                id="toggle-dark-mode"
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e7edf4] text-[#0d141c] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
+                onclick="toggleDarkMode()"
+            >
+                <div class="text-[#0d141c]" id="dark-mode-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                        <path
+                            d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"
+                        ></path>
+                    </svg>
+                </div>
+            </button>
+        </header>
+        <div class="px-4 md:px-10 lg:px-40 flex flex-1 justify-center py-5">
+            <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+                <div class="flex flex-col md:flex-row gap-4 px-4 py-3">
+                    <div class="flex flex-col flex-1">
+                        <textarea
+                            id="editor"
+                            placeholder="Enter your markdown here"
+                            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none min-h-36 placeholder:text-[#49709c] p-4 text-base font-normal leading-normal"
+                        ></textarea>
+                    </div>
+                    <div class="flex flex-col flex-1">
+                        <div
+                            id="preview"
+                            class="form-input flex w-full min-w-0 flex-1 overflow-auto rounded-lg text-[#0d141c] border-none bg-[#e7edf4] min-h-36 p-4 text-base font-normal leading-normal"
+                        ></div>
+                    </div>
+                </div>
+                <div class="flex justify-stretch">
+                    <div class="flex flex-1 gap-3 flex-wrap px-4 py-3 justify-end">
+                        <button
+                            onclick="convertToPDF()"
+                            class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#0c77f2] text-slate-50 text-sm font-bold leading-normal tracking-[0.015em]"
+                        >
+                            <span class="truncate">Convert to PDF</span>
+                        </button>
+                        <button
+                            onclick="convertToWord()"
+                            class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#0c77f2] text-slate-50 text-sm font-bold leading-normal tracking-[0.015em]"
+                        >
+                            <span class="truncate">Convert to Word Doc</span>
+                        </button>
+                        <button
+                            onclick="updatePreview()"
+                            class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#0c77f2] text-slate-50 text-sm font-bold leading-normal tracking-[0.015em]"
+                        >
+                            <span class="truncate">Preview</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex px-4 py-3 justify-end">
+                    <button
+                        onclick="copyToClipboard()"
+                        class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#e7edf4] text-[#0d141c] text-sm font-bold leading-normal tracking-[0.015em]"
+                    >
+                        <span class="truncate">Export to Clipboard</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="preview"></div>
 
     <script>
         function updatePreview() {
@@ -199,7 +163,6 @@
             html2pdf().set(opt).from(element).save();
         }
 
-        // Placeholder for Word conversion
         function convertToWord() {
             const markdownText = document.getElementById('editor').value;
             const htmlContent = marked.parse(markdownText);
@@ -221,10 +184,19 @@
             document.body.removeChild(link);
         }
 
-        // Placeholder for dark mode toggle
+        function copyToClipboard() {
+            const markdownText = document.getElementById('editor').value;
+            navigator.clipboard.writeText(markdownText).then(() => {
+                alert('Markdown copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
-            // Optionally, store preference
+            // Store preference
             if(document.body.classList.contains('dark-mode')) {
                 localStorage.setItem('theme', 'dark');
             } else {
@@ -232,26 +204,33 @@
             }
             updateDarkModeIcon();
         }
+
         function updateDarkModeIcon() {
-            const iconSpan = document.getElementById('dark-mode-icon');
+            const iconDiv = document.getElementById('dark-mode-icon');
             if(document.body.classList.contains('dark-mode')) {
-                // Moon icon
-                iconSpan.innerHTML = `<svg viewBox='0 0 24 24'><path d='M21 12.79A9 9 0 0111.21 3a1 1 0 00-1.09 1.32A7 7 0 1019.68 13.88a1 1 0 001.32-1.09z'></path></svg>`;
+                // Sun icon for when in dark mode
+                iconDiv.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                    <circle cx="128" cy="128" r="60" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="16"/>
+                    <path d="M128,36V16M62.9,62.9,48.8,48.8M36,128H16m46.9,65.1L48.8,207.2M128,220v20m65.1-46.9,14.1,14.1M220,128h20M193.1,62.9l14.1-14.1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+                </svg>`;
             } else {
-                // Sun icon
-                iconSpan.innerHTML = `<svg viewBox='0 0 24 24'><circle cx='12' cy='12' r='5'/><g><line x1='12' y1='1' x2='12' y2='3'/><line x1='12' y1='21' x2='12' y2='23'/><line x1='4.22' y1='4.22' x2='5.64' y2='5.64'/><line x1='18.36' y1='18.36' x2='19.78' y2='19.78'/><line x1='1' y1='12' x2='3' y2='12'/><line x1='21' y1='12' x2='23' y2='12'/><line x1='4.22' y1='19.78' x2='5.64' y2='18.36'/><line x1='18.36' y1='5.64' x2='19.78' y2='4.22'/></g></svg>`;
+                // Moon icon for when in light mode
+                iconDiv.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"></path>
+                </svg>`;
             }
         }
+
         // On load, set theme from localStorage and update icon
         window.onload = function() {
             if(localStorage.getItem('theme') === 'dark') {
                 document.body.classList.add('dark-mode');
             }
             updateDarkModeIcon();
+            
+            // Update preview on input
+            document.getElementById('editor').addEventListener('input', updatePreview);
         }
-
-        // Update preview on input
-        document.getElementById('editor').addEventListener('input', updatePreview);
     </script>
 </body>
 </html>
