@@ -146,6 +146,14 @@
             const element = document.createElement('div');
             element.innerHTML = htmlContent;
             element.style.padding = '20px';
+            element.style.color = '#000000'; // Force black text
+            element.style.backgroundColor = '#ffffff'; // Force white background
+            
+            // Apply black text color to all text elements
+            const allElements = element.querySelectorAll('*');
+            allElements.forEach(el => {
+                el.style.color = '#000000';
+            });
             
             // Generate timestamp for filename
             const now = new Date();
